@@ -2258,6 +2258,434 @@ git checkout v1.0.0`
             }
         }
     },
+    bettersqlite3: {
+        name: 'better-sqlite3',
+        topics: {
+            inicio: {
+                title: 'Início Rápido',
+                subtitle: 'better-sqlite3',
+                description: 'better-sqlite3 é a biblioteca SQLite mais rápida e simples para Node.js. Síncrona e fácil de usar.',
+                info: {
+                    title: 'Informações Úteis & Usos',
+                    items: [
+                        '**Síncrono**: Operações síncronas (sem callbacks/promises).',
+                        '**Performance**: Mais rápido que outras libs SQLite.',
+                        '**Simples**: API intuitiva e direta.',
+                        '**Seguro**: Suporte nativo a prepared statements.'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// Instalação
+npm install better-sqlite3
+
+// Importar
+const Database = require('better-sqlite3');
+
+// Criar/Abrir banco de dados
+const db = new Database('meuBanco.db');
+
+// Com opções
+const db = new Database('meuBanco.db', { 
+  verbose: console.log,  // Log de queries
+  fileMustExist: false   // Criar se não existir
+});
+
+// Banco em memória
+const db = new Database(':memory:');
+
+// Fechar conexão
+db.close();`
+                    }
+                ]
+            },
+            tabelas: {
+                title: 'Criar Tabelas',
+                subtitle: 'better-sqlite3',
+                description: 'Criação e estruturação de tabelas.',
+                examples: [
+                    {
+                        code: `// Criar tabela
+db.exec(\`
+  CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    email TEXT UNIQUE,
+    idade INTEGER,
+    ativo INTEGER DEFAULT 1,
+    criado_em TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+\`);
+
+// Criar múltiplas tabelas
+db.exec(\`
+  CREATE TABLE IF NOT EXISTS categorias (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL
+  );
+  
+  CREATE TABLE IF NOT EXISTS produtos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    preco REAL,
+    categoria_id INTEGER,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id)
+  );
+\`);
+
+// Deletar tabela
+db.exec('DROP TABLE IF EXISTS usuarios');`
+                    }
+                ]
+            },
+            inserir: {
+                title: 'Inserir Dados',
+                subtitle: 'better-sqlite3',
+                description: 'Inserção de registros com prepared statements.',
+                examples: [
+                    {
+                        code: `// Inserir um registro
+const stmt = db.prepare('INSERT INTO usuarios (nome, email, idade) VALUES (?, ?, ?)');
+const result = stmt.run('João', 'joao@email.com', 25);
+
+console.log(result.changes);        // Linhas afetadas
+console.log(result.lastInsertRowid); // ID inserido
+
+// Usando parâmetros nomeados
+const stmt = db.prepare('INSERT INTO usuarios (nome, email) VALUES (@nome, @email)');
+stmt.run({ nome: 'Maria', email: 'maria@email.com' });
+
+// Inserir vários (transação)
+const inserir = db.prepare('INSERT INTO usuarios (nome, email) VALUES (?, ?)');
+
+const inserirVarios = db.transaction((usuarios) => {
+  for (const user of usuarios) {
+    inserir.run(user.nome, user.email);
+  }
+});
+
+inserirVarios([
+  { nome: 'Ana', email: 'ana@email.com' },
+  { nome: 'Pedro', email: 'pedro@email.com' },
+  { nome: 'Lucas', email: 'lucas@email.com' }
+]);`
+                    }
+                ]
+            },
+            consultar: {
+                title: 'Consultar Dados',
+                subtitle: 'better-sqlite3',
+                description: 'Métodos para buscar registros.',
+                info: {
+                    title: 'Métodos de Consulta',
+                    items: [
+                        '**get()**: Retorna primeiro registro ou undefined.',
+                        '**all()**: Retorna array com todos os registros.',
+                        '**iterate()**: Retorna iterator para grandes datasets.',
+                        '**pluck()**: Retorna apenas a primeira coluna.'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// Buscar um registro
+const usuario = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(1);
+console.log(usuario); // { id: 1, nome: 'João', ... }
+
+// Buscar todos
+const usuarios = db.prepare('SELECT * FROM usuarios').all();
+console.log(usuarios); // [{ id: 1, ... }, { id: 2, ... }]
+
+// Com condições
+const ativos = db.prepare('SELECT * FROM usuarios WHERE ativo = ?').all(1);
+
+// Parâmetros nomeados
+const stmt = db.prepare('SELECT * FROM usuarios WHERE idade > @idade');
+const adultos = stmt.all({ idade: 18 });
+
+// Pluck - retorna só primeira coluna
+const nomes = db.prepare('SELECT nome FROM usuarios').pluck().all();
+console.log(nomes); // ['João', 'Maria', 'Ana']
+
+// Iterate - para grandes datasets
+const stmt = db.prepare('SELECT * FROM usuarios');
+for (const user of stmt.iterate()) {
+  console.log(user.nome);
+}`
+                    }
+                ]
+            },
+            atualizar: {
+                title: 'Atualizar Dados',
+                subtitle: 'better-sqlite3',
+                description: 'Atualização de registros existentes.',
+                examples: [
+                    {
+                        code: `// Atualizar registro
+const stmt = db.prepare('UPDATE usuarios SET nome = ?, email = ? WHERE id = ?');
+const result = stmt.run('João Silva', 'joao.silva@email.com', 1);
+
+console.log(result.changes); // Número de linhas alteradas
+
+// Com parâmetros nomeados
+const stmt = db.prepare(\`
+  UPDATE usuarios 
+  SET nome = @nome, idade = @idade 
+  WHERE id = @id
+\`);
+
+stmt.run({ id: 1, nome: 'João Updated', idade: 26 });
+
+// Atualizar vários em transação
+const atualizar = db.prepare('UPDATE usuarios SET ativo = ? WHERE id = ?');
+
+const desativarVarios = db.transaction((ids) => {
+  for (const id of ids) {
+    atualizar.run(0, id);
+  }
+});
+
+desativarVarios([1, 2, 3]);`
+                    }
+                ]
+            },
+            deletar: {
+                title: 'Deletar Dados',
+                subtitle: 'better-sqlite3',
+                description: 'Remoção de registros.',
+                examples: [
+                    {
+                        code: `// Deletar registro
+const stmt = db.prepare('DELETE FROM usuarios WHERE id = ?');
+const result = stmt.run(1);
+
+console.log(result.changes); // Linhas deletadas
+
+// Deletar com condição
+db.prepare('DELETE FROM usuarios WHERE ativo = 0').run();
+
+// Deletar todos
+db.prepare('DELETE FROM usuarios').run();
+
+// Deletar em transação
+const deletar = db.prepare('DELETE FROM usuarios WHERE id = ?');
+
+const deletarVarios = db.transaction((ids) => {
+  for (const id of ids) {
+    deletar.run(id);
+  }
+  return ids.length;
+});
+
+const deletados = deletarVarios([1, 2, 3]);
+console.log(\`Deletados: \${deletados}\`);`
+                    }
+                ]
+            },
+            transacoes: {
+                title: 'Transações',
+                subtitle: 'better-sqlite3',
+                description: 'Transações para operações atômicas.',
+                info: {
+                    title: 'Tipos de Transação',
+                    items: [
+                        '**deferred**: Padrão, lock quando necessário.',
+                        '**immediate**: Lock imediato para escrita.',
+                        '**exclusive**: Lock exclusivo total.'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// Transação básica
+const transferir = db.transaction((de, para, valor) => {
+  db.prepare('UPDATE contas SET saldo = saldo - ? WHERE id = ?').run(valor, de);
+  db.prepare('UPDATE contas SET saldo = saldo + ? WHERE id = ?').run(valor, para);
+});
+
+transferir(1, 2, 100); // Transfere 100 da conta 1 para 2
+
+// Com tipo de transação
+const inserirImediato = db.transaction((dados) => {
+  // operações
+}).immediate();
+
+const inserirExclusivo = db.transaction((dados) => {
+  // operações
+}).exclusive();
+
+// Transação com retorno
+const criarUsuario = db.transaction((nome, email) => {
+  const result = db.prepare('INSERT INTO usuarios (nome, email) VALUES (?, ?)').run(nome, email);
+  return db.prepare('SELECT * FROM usuarios WHERE id = ?').get(result.lastInsertRowid);
+});
+
+const novoUsuario = criarUsuario('Novo', 'novo@email.com');
+console.log(novoUsuario);
+
+// Verificar se está em transação
+console.log(db.inTransaction); // true/false`
+                    }
+                ]
+            },
+            agregacao: {
+                title: 'Funções de Agregação',
+                subtitle: 'better-sqlite3',
+                description: 'COUNT, SUM, AVG, MIN, MAX e agrupamentos.',
+                examples: [
+                    {
+                        code: `// Contar registros
+const total = db.prepare('SELECT COUNT(*) as total FROM usuarios').get();
+console.log(total.total);
+
+// Usando pluck para valor direto
+const count = db.prepare('SELECT COUNT(*) FROM usuarios').pluck().get();
+console.log(count); // 42
+
+// Soma
+const soma = db.prepare('SELECT SUM(preco) as total FROM produtos').pluck().get();
+
+// Média
+const media = db.prepare('SELECT AVG(idade) FROM usuarios').pluck().get();
+
+// Min e Max
+const stats = db.prepare(\`
+  SELECT 
+    MIN(preco) as menor,
+    MAX(preco) as maior,
+    AVG(preco) as media
+  FROM produtos
+\`).get();
+
+// Group By
+const porCategoria = db.prepare(\`
+  SELECT categoria, COUNT(*) as total 
+  FROM produtos 
+  GROUP BY categoria
+\`).all();
+
+// Having
+const categoriasPopulares = db.prepare(\`
+  SELECT categoria, COUNT(*) as total 
+  FROM produtos 
+  GROUP BY categoria 
+  HAVING total > 5
+\`).all();`
+                    }
+                ]
+            },
+            funcoes: {
+                title: 'Funções Customizadas',
+                subtitle: 'better-sqlite3',
+                description: 'Criar funções SQL personalizadas.',
+                examples: [
+                    {
+                        code: `// Função escalar simples
+db.function('dobrar', (x) => x * 2);
+const result = db.prepare('SELECT dobrar(10)').pluck().get();
+console.log(result); // 20
+
+// Função com múltiplos argumentos
+db.function('soma', (a, b) => a + b);
+
+// Função de agregação
+db.aggregate('concatenar', {
+  start: '',
+  step: (acumulador, valor) => acumulador + valor + ', ',
+  result: (acumulador) => acumulador.slice(0, -2)
+});
+
+const nomes = db.prepare('SELECT concatenar(nome) FROM usuarios').pluck().get();
+console.log(nomes); // 'João, Maria, Ana'
+
+// Função determinística (cacheable)
+db.function('maiusculo', {
+  deterministic: true
+}, (texto) => texto.toUpperCase());
+
+// Usar em queries
+const usuarios = db.prepare(\`
+  SELECT maiusculo(nome) as nome FROM usuarios
+\`).all();`
+                    }
+                ]
+            },
+            pragma: {
+                title: 'Configurações (PRAGMA)',
+                subtitle: 'better-sqlite3',
+                description: 'Configurações e otimizações do banco.',
+                examples: [
+                    {
+                        code: `// WAL mode (melhor performance)
+db.pragma('journal_mode = WAL');
+
+// Verificar configuração
+const mode = db.pragma('journal_mode', { simple: true });
+console.log(mode); // 'wal'
+
+// Configurações comuns
+db.pragma('synchronous = NORMAL');  // Menos sync, mais rápido
+db.pragma('cache_size = 10000');    // Cache maior
+db.pragma('temp_store = MEMORY');   // Temp em memória
+
+// Foreign keys (desativado por padrão!)
+db.pragma('foreign_keys = ON');
+
+// Verificar integridade
+const check = db.pragma('integrity_check');
+console.log(check); // [{ integrity_check: 'ok' }]
+
+// Listar tabelas
+const tabelas = db.prepare(\`
+  SELECT name FROM sqlite_master WHERE type='table'
+\`).pluck().all();
+
+// Info da tabela
+const colunas = db.pragma('table_info(usuarios)');
+console.log(colunas);`
+                    }
+                ]
+            },
+            backup: {
+                title: 'Backup e Utilitários',
+                subtitle: 'better-sqlite3',
+                description: 'Backup, export e funções utilitárias.',
+                examples: [
+                    {
+                        code: `// Backup do banco
+db.backup('backup.db')
+  .then(() => console.log('Backup completo!'))
+  .catch(err => console.error('Erro:', err));
+
+// Backup com progresso
+db.backup('backup.db', {
+  progress({ totalPages, remainingPages }) {
+    console.log(\`Progresso: \${((totalPages - remainingPages) / totalPages * 100).toFixed(1)}%\`);
+    return 100; // Páginas por passo
+  }
+});
+
+// Serializar para Buffer (in-memory backup)
+const buffer = db.serialize();
+// Salvar buffer em arquivo ou enviar
+
+// Carregar de Buffer
+const db2 = new Database(buffer);
+
+// Verificar se banco está aberto
+console.log(db.open); // true/false
+
+// Verificar se é read-only
+console.log(db.readonly); // true/false
+
+// Verificar se está em memória
+console.log(db.memory); // true/false
+
+// Nome do arquivo
+console.log(db.name); // 'meuBanco.db' ou ':memory:'`
+                    }
+                ]
+            }
+        }
+    },
     tailwind: {
         name: 'Tailwind CSS',
         topics: {
@@ -2905,7 +3333,8 @@ const sidebarSections = [
         id: 'uteis',
         title: 'Úteis',
         items: [
-            { key: 'github', name: 'GitHub' }
+            { key: 'github', name: 'GitHub' },
+            { key: 'bettersqlite3', name: 'better-sqlite3' }
         ]
     }
 ];
