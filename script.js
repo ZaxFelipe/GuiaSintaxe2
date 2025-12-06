@@ -571,6 +571,936 @@ print(joao.apresentar())`
             }
         }
     },
+    gml: {
+        name: 'GML',
+        topics: {
+            inicio: {
+                title: 'Introdução ao GML',
+                subtitle: 'GameMaker Language',
+                description: 'GML (GameMaker Language) é a linguagem de script do GameMaker Studio, projetada para desenvolvimento de jogos 2D.',
+                info: {
+                    title: 'Conceitos Fundamentais',
+                    items: [
+                        '**Objects**: Entidades que contêm lógica e comportamento.',
+                        '**Sprites**: Imagens ou animações usadas pelos objects.',
+                        '**Rooms**: Cenas/níveis onde objects são colocados.',
+                        '**Events**: Gatilhos que executam código (Create, Step, Draw, etc).'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// Estrutura básica de eventos
+
+// CREATE EVENT - Executa uma vez quando o objeto é criado
+speed = 5;
+health = 100;
+can_jump = true;
+
+// STEP EVENT - Executa a cada frame (60x por segundo)
+if (keyboard_check(vk_right)) {
+    x += speed;
+}
+
+// DRAW EVENT - Renderiza gráficos
+draw_self();  // Desenha o sprite do objeto
+draw_text(x, y - 20, "HP: " + string(health));
+
+// Comentários
+// Comentário de uma linha
+/* Comentário
+   de múltiplas linhas */`
+                    }
+                ]
+            },
+            variaveis: {
+                title: 'Variáveis',
+                subtitle: 'GameMaker Language',
+                description: 'Variáveis em GML podem ter diferentes escopos e tipos.',
+                info: {
+                    title: 'Tipos de Variáveis',
+                    items: [
+                        '**Instance Variables**: Pertencem a uma instância específica.',
+                        '**Local Variables**: Existem apenas no evento atual (var).',
+                        '**Global Variables**: Acessíveis de qualquer lugar.',
+                        '**Built-in Variables**: x, y, speed, direction, sprite_index, etc.'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// Variáveis de instância (CREATE EVENT)
+health = 100;
+max_health = 100;
+player_name = "Hero";
+is_alive = true;
+
+// Variáveis locais (só existem no evento)
+var temp_value = 50;
+var damage = 10;
+health -= damage;
+
+// Variáveis globais (acessíveis em qualquer lugar)
+global.score = 0;
+global.high_score = 1000;
+global.game_paused = false;
+
+// Variáveis built-in importantes
+x = 100;              // Posição horizontal
+y = 200;              // Posição vertical
+speed = 5;            // Velocidade de movimento
+direction = 90;       // Direção em graus (90 = cima)
+sprite_index = spr_player;  // Sprite atual
+image_index = 0;      // Frame atual da animação
+image_speed = 1;      // Velocidade da animação
+visible = true;       // Se o objeto é visível
+depth = 0;            // Profundidade de renderização`
+                    }
+                ]
+            },
+            condicionais: {
+                title: 'Condicionais',
+                subtitle: 'GameMaker Language',
+                description: 'Estruturas de controle para tomada de decisões.',
+                examples: [
+                    {
+                        code: `// If simples
+if (health <= 0) {
+    instance_destroy();
+}
+
+// If-else
+if (health > 50) {
+    sprite_index = spr_player_healthy;
+} else {
+    sprite_index = spr_player_hurt;
+}
+
+// If-else if-else
+if (health > 75) {
+    status = "Saudável";
+} else if (health > 25) {
+    status = "Ferido";
+} else if (health > 0) {
+    status = "Crítico";
+} else {
+    status = "Morto";
+}
+
+// Switch
+switch (weapon_type) {
+    case 0:
+        weapon_name = "Espada";
+        damage = 10;
+        break;
+    case 1:
+        weapon_name = "Arco";
+        damage = 7;
+        break;
+    case 2:
+        weapon_name = "Magia";
+        damage = 15;
+        break;
+    default:
+        weapon_name = "Punho";
+        damage = 3;
+}
+
+// Operador ternário
+var msg = (is_alive) ? "Vivo" : "Morto";`
+                    }
+                ]
+            },
+            loops: {
+                title: 'Loops',
+                subtitle: 'GameMaker Language',
+                description: 'Estruturas de repetição para iterar sobre dados.',
+                examples: [
+                    {
+                        code: `// For loop
+for (var i = 0; i < 10; i++) {
+    instance_create_layer(x + (i * 32), y, "Instances", obj_bullet);
+}
+
+// While loop
+var count = 0;
+while (count < 5) {
+    show_debug_message("Count: " + string(count));
+    count++;
+}
+
+// Do-until (executa pelo menos uma vez)
+var tries = 0;
+do {
+    var spawn_x = random(room_width);
+    var spawn_y = random(room_height);
+    tries++;
+} until (!place_meeting(spawn_x, spawn_y, obj_solid) || tries > 100);
+
+// Repeat (repete N vezes)
+repeat (5) {
+    instance_create_layer(x, y, "Instances", obj_particle);
+}
+
+// With (executa código em outras instâncias)
+with (obj_enemy) {
+    health -= 10;  // Dano em todos os inimigos
+}
+
+// Break e Continue
+for (var i = 0; i < 100; i++) {
+    if (i == 50) break;     // Sai do loop
+    if (i mod 2 == 0) continue;  // Pula pares
+    show_debug_message(i);
+}`
+                    }
+                ]
+            },
+            funcoes: {
+                title: 'Funções',
+                subtitle: 'GameMaker Language',
+                description: 'Criar funções customizadas para organizar código.',
+                examples: [
+                    {
+                        code: `// Função simples
+function say_hello() {
+    show_debug_message("Hello World!");
+}
+
+// Função com parâmetros
+function deal_damage(_target, _amount) {
+    with (_target) {
+        health -= _amount;
+        if (health <= 0) {
+            instance_destroy();
+        }
+    }
+}
+
+// Função com retorno
+function calculate_distance(_x1, _y1, _x2, _y2) {
+    var dx = _x2 - _x1;
+    var dy = _y2 - _y1;
+    return sqrt(dx * dx + dy * dy);
+}
+
+// Função com valor padrão
+function spawn_enemy(_x, _y, _type = obj_enemy_basic) {
+    return instance_create_layer(_x, _y, "Enemies", _type);
+}
+
+// Chamando funções
+say_hello();
+deal_damage(obj_player, 25);
+var dist = calculate_distance(x, y, mouse_x, mouse_y);
+var enemy = spawn_enemy(100, 100);
+var boss = spawn_enemy(200, 200, obj_boss);`
+                    }
+                ]
+            },
+            arrays: {
+                title: 'Arrays e Structs',
+                subtitle: 'GameMaker Language',
+                description: 'Estruturas de dados para armazenar coleções.',
+                info: {
+                    title: 'Tipos de Estruturas',
+                    items: [
+                        '**Arrays**: Listas ordenadas por índice numérico.',
+                        '**Structs**: Objetos com pares chave-valor.',
+                        '**DS Lists**: Listas dinâmicas (legado).',
+                        '**DS Maps**: Mapas chave-valor (legado).'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// Arrays
+var inventory = ["Espada", "Escudo", "Poção"];
+inventory[3] = "Arco";  // Adicionar item
+
+var primeiro = inventory[0];  // "Espada"
+var tamanho = array_length(inventory);  // 4
+
+// Arrays 2D
+var grid = [];
+for (var i = 0; i < 10; i++) {
+    grid[i] = [];
+    for (var j = 0; j < 10; j++) {
+        grid[i][j] = 0;
+    }
+}
+
+// Funções de Array
+array_push(inventory, "Capacete");  // Adiciona no final
+var item = array_pop(inventory);     // Remove do final
+array_insert(inventory, 0, "Anel");  // Insere na posição
+array_delete(inventory, 1, 1);       // Remove 1 item da posição 1
+
+// Structs
+var player = {
+    name: "Hero",
+    health: 100,
+    mana: 50,
+    inventory: ["Espada", "Escudo"]
+};
+
+// Acessar struct
+var nome = player.name;
+var hp = player.health;
+player.health -= 10;
+
+// Struct dinâmico
+player.new_stat = 999;  // Adiciona nova propriedade
+var keys = variable_struct_get_names(player);`
+                    }
+                ]
+            },
+            movimento: {
+                title: 'Movimento',
+                subtitle: 'GameMaker Language',
+                description: 'Técnicas de movimento para personagens e objetos.',
+                examples: [
+                    {
+                        code: `// STEP EVENT - Movimento básico com teclado
+var move_x = keyboard_check(vk_right) - keyboard_check(vk_left);
+var move_y = keyboard_check(vk_down) - keyboard_check(vk_up);
+
+x += move_x * speed;
+y += move_y * speed;
+
+// Movimento suave com aceleração
+hspd = lerp(hspd, move_x * max_speed, 0.2);
+vspd = lerp(vspd, move_y * max_speed, 0.2);
+x += hspd;
+y += vspd;
+
+// Movimento em direção ao mouse
+var dir = point_direction(x, y, mouse_x, mouse_y);
+var dist = point_distance(x, y, mouse_x, mouse_y);
+
+if (dist > 5) {
+    x += lengthdir_x(speed, dir);
+    y += lengthdir_y(speed, dir);
+}
+
+// Movimento com colisão
+if (!place_meeting(x + hspd, y, obj_wall)) {
+    x += hspd;
+} else {
+    while (!place_meeting(x + sign(hspd), y, obj_wall)) {
+        x += sign(hspd);
+    }
+    hspd = 0;
+}
+
+// Movimento de plataforma (gravidade)
+vspd += gravity_force;
+if (place_meeting(x, y + vspd, obj_ground)) {
+    while (!place_meeting(x, y + sign(vspd), obj_ground)) {
+        y += sign(vspd);
+    }
+    vspd = 0;
+    on_ground = true;
+} else {
+    y += vspd;
+    on_ground = false;
+}`
+                    }
+                ]
+            },
+            colisao: {
+                title: 'Colisão',
+                subtitle: 'GameMaker Language',
+                description: 'Detecção e tratamento de colisões.',
+                info: {
+                    title: 'Funções de Colisão',
+                    items: [
+                        '**place_meeting**: Verifica colisão em posição.',
+                        '**instance_place**: Retorna instância colidida.',
+                        '**collision_line**: Colisão em linha reta.',
+                        '**collision_circle**: Colisão em área circular.'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// Verificar colisão simples
+if (place_meeting(x, y, obj_enemy)) {
+    health -= 10;
+}
+
+// Verificar antes de mover
+if (!place_meeting(x + hspd, y, obj_wall)) {
+    x += hspd;
+}
+
+// Obter instância colidida
+var coin = instance_place(x, y, obj_coin);
+if (coin != noone) {
+    global.score += coin.value;
+    instance_destroy(coin);
+}
+
+// Colisão em ponto específico
+if (position_meeting(mouse_x, mouse_y, obj_button)) {
+    // Mouse sobre o botão
+}
+
+// Colisão em linha (raycasting)
+var hit = collision_line(x, y, target_x, target_y, obj_wall, false, true);
+if (hit != noone) {
+    // Algo bloqueando a visão
+}
+
+// Colisão circular (area de efeito)
+var nearby = ds_list_create();
+var count = collision_circle_list(x, y, 100, obj_enemy, false, true, nearby, false);
+for (var i = 0; i < count; i++) {
+    var enemy = nearby[| i];
+    with (enemy) {
+        health -= 5;  // Dano em área
+    }
+}
+ds_list_destroy(nearby);
+
+// Collision Event (alternativa)
+// No evento Collision com obj_enemy:
+health -= 10;
+with (other) {
+    instance_destroy();
+}`
+                    }
+                ]
+            },
+            desenho: {
+                title: 'Desenho (Draw)',
+                subtitle: 'GameMaker Language',
+                description: 'Renderização de gráficos, sprites e texto.',
+                examples: [
+                    {
+                        code: `// DRAW EVENT
+
+// Desenhar sprite do objeto
+draw_self();
+
+// Desenhar sprite específico
+draw_sprite(spr_icon, 0, x, y);
+draw_sprite_ext(spr_icon, 0, x, y, 2, 2, 0, c_white, 1);
+// (sprite, frame, x, y, xscale, yscale, rotation, color, alpha)
+
+// Desenhar texto
+draw_set_font(fnt_game);
+draw_set_color(c_white);
+draw_set_halign(fa_center);
+draw_text(x, y - 30, "Player");
+
+// Texto com formatação
+draw_text_ext(x, y, "Texto longo que\nquebra linha", 20, 200);
+// (x, y, texto, separação, largura_max)
+
+// Formas básicas
+draw_rectangle(0, 0, 100, 50, false);  // Preenchido
+draw_rectangle(0, 0, 100, 50, true);   // Só borda
+draw_circle(x, y, 50, false);
+draw_line(x1, y1, x2, y2);
+draw_line_width(x1, y1, x2, y2, 3);
+
+// Cores e alpha
+draw_set_color(c_red);
+draw_set_alpha(0.5);
+draw_circle(x, y, 30, false);
+draw_set_alpha(1);  // Resetar
+
+// Barra de vida
+var bar_width = 50;
+var bar_height = 6;
+var hp_percent = health / max_health;
+
+draw_set_color(c_red);
+draw_rectangle(x - bar_width/2, y - 40, x + bar_width/2, y - 40 + bar_height, false);
+draw_set_color(c_green);
+draw_rectangle(x - bar_width/2, y - 40, x - bar_width/2 + (bar_width * hp_percent), y - 40 + bar_height, false);`
+                    }
+                ]
+            },
+            rooms: {
+                title: 'Rooms e Instâncias',
+                subtitle: 'GameMaker Language',
+                description: 'Gerenciamento de cenas e criação de objetos.',
+                examples: [
+                    {
+                        code: `// Criar instância
+var bullet = instance_create_layer(x, y, "Instances", obj_bullet);
+bullet.direction = point_direction(x, y, mouse_x, mouse_y);
+bullet.speed = 10;
+
+// Criar em profundidade específica
+var effect = instance_create_depth(x, y, -100, obj_explosion);
+
+// Destruir instância
+instance_destroy();  // Destrói a instância atual
+instance_destroy(other);  // Destrói outra instância
+
+// Verificar se instância existe
+if (instance_exists(obj_player)) {
+    var player = instance_find(obj_player, 0);
+}
+
+// Contar instâncias
+var enemy_count = instance_number(obj_enemy);
+
+// Mudar de room
+room_goto(rm_level_2);
+room_goto_next();  // Próxima room
+room_goto_previous();  // Room anterior
+room_restart();  // Reiniciar room atual
+
+// Persistência (objeto continua entre rooms)
+persistent = true;
+
+// Verificar room atual
+if (room == rm_menu) {
+    // Estamos no menu
+}
+
+// Dimensões da room
+var largura = room_width;
+var altura = room_height;`
+                    }
+                ]
+            },
+            input: {
+                title: 'Input (Teclado/Mouse)',
+                subtitle: 'GameMaker Language',
+                description: 'Captura de entrada do jogador.',
+                info: {
+                    title: 'Funções de Input',
+                    items: [
+                        '**_check**: Verdadeiro enquanto pressionado.',
+                        '**_pressed**: Verdadeiro apenas no frame que pressionou.',
+                        '**_released**: Verdadeiro apenas no frame que soltou.',
+                        '**Teclas especiais**: vk_left, vk_right, vk_space, vk_shift, etc.'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// STEP EVENT
+
+// Teclado - Check (contínuo)
+if (keyboard_check(vk_right)) {
+    x += 5;  // Move enquanto segura
+}
+
+// Teclado - Pressed (uma vez)
+if (keyboard_check_pressed(vk_space)) {
+    // Pulo - executa só uma vez
+    if (on_ground) {
+        vspd = -jump_force;
+    }
+}
+
+// Teclado - Released
+if (keyboard_check_released(ord("E"))) {
+    // Soltou a tecla E
+}
+
+// Letras e números
+if (keyboard_check(ord("W"))) { y -= speed; }
+if (keyboard_check(ord("A"))) { x -= speed; }
+if (keyboard_check(ord("S"))) { y += speed; }
+if (keyboard_check(ord("D"))) { x += speed; }
+
+// Mouse
+if (mouse_check_button(mb_left)) {
+    // Botão esquerdo segurado
+}
+
+if (mouse_check_button_pressed(mb_right)) {
+    // Clique direito (uma vez)
+    instance_create_layer(mouse_x, mouse_y, "Instances", obj_marker);
+}
+
+// Posição do mouse
+image_angle = point_direction(x, y, mouse_x, mouse_y);
+
+// Mouse wheel
+if (mouse_wheel_up()) { zoom += 0.1; }
+if (mouse_wheel_down()) { zoom -= 0.1; }`
+                    }
+                ]
+            },
+            audio: {
+                title: 'Áudio',
+                subtitle: 'GameMaker Language',
+                description: 'Reprodução de sons e músicas.',
+                examples: [
+                    {
+                        code: `// Tocar som simples
+audio_play_sound(snd_jump, 1, false);
+// (sound, prioridade, loop)
+
+// Tocar música (com loop)
+audio_play_sound(snd_music_level1, 0, true);
+
+// Guardar referência
+var music = audio_play_sound(snd_music, 0, true);
+
+// Parar som
+audio_stop_sound(snd_music);
+audio_stop_sound(music);  // Por referência
+audio_stop_all();  // Para todos
+
+// Volume (0 a 1)
+audio_sound_gain(music, 0.5, 0);  // 50% volume instantâneo
+audio_sound_gain(music, 1, 1000);  // Fade para 100% em 1 segundo
+
+// Volume global
+audio_set_master_gain(0, 0.8);  // 80% volume master
+
+// Verificar se está tocando
+if (audio_is_playing(snd_music)) {
+    // Música ainda tocando
+}
+
+// Som posicional (3D)
+audio_play_sound_at(snd_explosion, x, y, 0, 100, 300, 1, false, 1);
+// (sound, x, y, z, falloff_ref, falloff_max, falloff_factor, loop, prioridade)
+
+// Pitch (velocidade)
+audio_sound_pitch(music, 1.5);  // 50% mais rápido`
+                    }
+                ]
+            },
+            camera: {
+                title: 'Câmera',
+                subtitle: 'GameMaker Language',
+                description: 'Controle de câmera e viewport.',
+                examples: [
+                    {
+                        code: `// CREATE EVENT do objeto de câmera
+cam = camera_create();
+var view_w = 640;
+var view_h = 360;
+
+camera_set_view_size(cam, view_w, view_h);
+view_camera[0] = cam;
+view_enabled = true;
+view_visible[0] = true;
+
+// STEP EVENT - Seguir jogador
+if (instance_exists(obj_player)) {
+    var cam_x = obj_player.x - (view_w / 2);
+    var cam_y = obj_player.y - (view_h / 2);
+    
+    // Suavizar movimento
+    var current_x = camera_get_view_x(cam);
+    var current_y = camera_get_view_y(cam);
+    
+    cam_x = lerp(current_x, cam_x, 0.1);
+    cam_y = lerp(current_y, cam_y, 0.1);
+    
+    // Limitar à room
+    cam_x = clamp(cam_x, 0, room_width - view_w);
+    cam_y = clamp(cam_y, 0, room_height - view_h);
+    
+    camera_set_view_pos(cam, cam_x, cam_y);
+}
+
+// Zoom
+camera_set_view_size(cam, view_w * zoom, view_h * zoom);
+
+// Screen shake
+var shake_x = random_range(-shake_amount, shake_amount);
+var shake_y = random_range(-shake_amount, shake_amount);
+camera_set_view_pos(cam, cam_x + shake_x, cam_y + shake_y);`
+                    }
+                ]
+            },
+            alarms: {
+                title: 'Alarms e Timers',
+                subtitle: 'GameMaker Language',
+                description: 'Temporizadores para eventos atrasados.',
+                examples: [
+                    {
+                        code: `// CREATE EVENT
+alarm[0] = room_speed * 2;  // 2 segundos
+fire_rate = room_speed / 4; // 4 tiros por segundo
+
+// ALARM 0 EVENT
+show_debug_message("Alarm 0 disparou!");
+instance_create_layer(x, y, "Instances", obj_enemy);
+alarm[0] = room_speed * 3;  // Repetir em 3 segundos
+
+// STEP EVENT - Tiro com cooldown
+if (mouse_check_button(mb_left) && can_shoot) {
+    instance_create_layer(x, y, "Bullets", obj_bullet);
+    can_shoot = false;
+    alarm[1] = fire_rate;
+}
+
+// ALARM 1 EVENT
+can_shoot = true;
+
+// Timer manual (alternativa)
+timer++;
+if (timer >= room_speed) {
+    timer = 0;
+    // Executar a cada segundo
+}
+
+// Conversões de tempo
+var segundos = 5;
+var frames = segundos * room_speed;
+
+// Verificar alarm
+if (alarm[0] > 0) {
+    // Alarm 0 está contando
+    var tempo_restante = alarm[0] / room_speed;
+}
+
+// Cancelar alarm
+alarm[0] = -1;`
+                    }
+                ]
+            },
+            particulas: {
+                title: 'Partículas',
+                subtitle: 'GameMaker Language',
+                description: 'Sistema de partículas para efeitos visuais.',
+                examples: [
+                    {
+                        code: `// CREATE EVENT - Configurar sistema de partículas
+part_system = part_system_create();
+part_system_depth(part_system, -100);
+
+// Criar tipo de partícula
+part_fire = part_type_create();
+part_type_shape(part_fire, pt_shape_pixel);
+part_type_size(part_fire, 2, 4, -0.1, 0);
+part_type_color3(part_fire, c_yellow, c_orange, c_red);
+part_type_alpha3(part_fire, 1, 0.8, 0);
+part_type_speed(part_fire, 1, 3, -0.05, 0);
+part_type_direction(part_fire, 80, 100, 0, 10);
+part_type_gravity(part_fire, 0.05, 90);
+part_type_life(part_fire, 20, 40);
+
+// Criar emitter
+emitter = part_emitter_create(part_system);
+part_emitter_region(part_system, emitter, x-5, x+5, y-5, y+5, ps_shape_ellipse, ps_distr_linear);
+part_emitter_stream(part_system, emitter, part_fire, 5);
+
+// STEP EVENT - Atualizar posição
+part_emitter_region(part_system, emitter, x-5, x+5, y-5, y+5, ps_shape_ellipse, ps_distr_linear);
+
+// Burst (explosão)
+part_emitter_burst(part_system, emitter, part_fire, 50);
+
+// CLEANUP EVENT
+part_type_destroy(part_fire);
+part_emitter_destroy(part_system, emitter);
+part_system_destroy(part_system);`
+                    }
+                ]
+            },
+            salvamento: {
+                title: 'Save/Load',
+                subtitle: 'GameMaker Language',
+                description: 'Salvar e carregar dados do jogo.',
+                examples: [
+                    {
+                        code: `// Salvar com INI (simples)
+ini_open("save.ini");
+ini_write_real("Player", "health", health);
+ini_write_real("Player", "x", x);
+ini_write_real("Player", "y", y);
+ini_write_string("Player", "name", player_name);
+ini_write_real("Game", "score", global.score);
+ini_close();
+
+// Carregar com INI
+ini_open("save.ini");
+health = ini_read_real("Player", "health", 100);  // 100 = default
+x = ini_read_real("Player", "x", 0);
+y = ini_read_real("Player", "y", 0);
+player_name = ini_read_string("Player", "name", "Hero");
+global.score = ini_read_real("Game", "score", 0);
+ini_close();
+
+// Salvar com JSON (mais flexível)
+var save_data = {
+    player: {
+        health: health,
+        x: x,
+        y: y,
+        inventory: inventory
+    },
+    game: {
+        score: global.score,
+        level: room
+    }
+};
+
+var json_string = json_stringify(save_data);
+var file = file_text_open_write("save.json");
+file_text_write_string(file, json_string);
+file_text_close(file);
+
+// Carregar JSON
+var file = file_text_open_read("save.json");
+var json_string = file_text_read_string(file);
+file_text_close(file);
+
+var save_data = json_parse(json_string);
+health = save_data.player.health;
+x = save_data.player.x;`
+                    }
+                ]
+            },
+            lengthdir: {
+                title: 'Lengthdir (Vetores)',
+                subtitle: 'GameMaker Language',
+                description: 'Funções lengthdir_x e lengthdir_y convertem coordenadas polares (distância + ângulo) em coordenadas cartesianas (x, y). Essenciais para movimento circular, projéteis e posicionamento.',
+                info: {
+                    title: 'Conceitos Importantes',
+                    items: [
+                        '**lengthdir_x(len, dir)**: Retorna componente X de um vetor.',
+                        '**lengthdir_y(len, dir)**: Retorna componente Y de um vetor.',
+                        '**Ângulos**: 0° = direita, 90° = cima, 180° = esquerda, 270° = baixo.',
+                        '**Uso comum**: Projéteis, órbitas, spawns em círculo, rotação.'
+                    ]
+                },
+                examples: [
+                    {
+                        code: `// ========== CONCEITO BÁSICO ==========
+// lengthdir converte: distância + ângulo → posição X,Y
+
+// Exemplo: ponto a 100 pixels, 45 graus
+var dist = 100;
+var angle = 45;
+var offset_x = lengthdir_x(dist, angle);  // ~70.7
+var offset_y = lengthdir_y(dist, angle);  // ~-70.7
+
+// Posição final
+var target_x = x + offset_x;
+var target_y = y + offset_y;
+
+
+// ========== PROJÉTEIS / TIROS ==========
+// Criar bala na direção do mouse
+var bullet = instance_create_layer(x, y, "Bullets", obj_bullet);
+var dir = point_direction(x, y, mouse_x, mouse_y);
+var spd = 10;
+
+bullet.hspd = lengthdir_x(spd, dir);
+bullet.vspd = lengthdir_y(spd, dir);
+
+// No obj_bullet STEP:
+x += hspd;
+y += vspd;
+
+
+// ========== SPAWN EM CÍRCULO ==========
+// Criar 8 inimigos em círculo ao redor do player
+var num_enemies = 8;
+var spawn_radius = 150;
+
+for (var i = 0; i < num_enemies; i++) {
+    var angle = (360 / num_enemies) * i;  // 0, 45, 90, 135...
+    var spawn_x = x + lengthdir_x(spawn_radius, angle);
+    var spawn_y = y + lengthdir_y(spawn_radius, angle);
+    instance_create_layer(spawn_x, spawn_y, "Enemies", obj_enemy);
+}
+
+
+// ========== ÓRBITA / ROTAÇÃO ==========
+// CREATE EVENT
+orbit_angle = 0;
+orbit_radius = 80;
+orbit_speed = 2;
+
+// STEP EVENT - Objeto orbita ao redor de um ponto central
+orbit_angle += orbit_speed;
+x = obj_player.x + lengthdir_x(orbit_radius, orbit_angle);
+y = obj_player.y + lengthdir_y(orbit_radius, orbit_angle);
+
+
+// ========== ARMA COM OFFSET ==========
+// Posicionar arma na mão do personagem
+var arm_length = 20;
+var aim_dir = point_direction(x, y, mouse_x, mouse_y);
+
+gun_x = x + lengthdir_x(arm_length, aim_dir);
+gun_y = y + lengthdir_y(arm_length, aim_dir);
+
+// Spawn da bala na ponta da arma
+var barrel_length = 15;
+var bullet_x = gun_x + lengthdir_x(barrel_length, aim_dir);
+var bullet_y = gun_y + lengthdir_y(barrel_length, aim_dir);
+
+
+// ========== SPREAD / DISPERSÃO ==========
+// Tiro com spread (shotgun)
+var base_dir = point_direction(x, y, mouse_x, mouse_y);
+var spread = 30;  // ângulo total de dispersão
+var num_bullets = 5;
+
+for (var i = 0; i < num_bullets; i++) {
+    var offset = -spread/2 + (spread / (num_bullets-1)) * i;
+    var bullet_dir = base_dir + offset;
+    
+    var bullet = instance_create_layer(x, y, "Bullets", obj_bullet);
+    bullet.hspd = lengthdir_x(8, bullet_dir);
+    bullet.vspd = lengthdir_y(8, bullet_dir);
+}
+
+
+// ========== MOVIMENTO SENOIDAL ==========
+// Movimento em onda (projétil ou inimigo)
+// CREATE
+wave_offset = 0;
+base_dir = 0;  // direção principal
+wave_amplitude = 30;
+wave_speed = 10;
+
+// STEP
+wave_offset += wave_speed;
+var wave_dir = base_dir + 90;  // perpendicular
+var wave = sin(degtorad(wave_offset)) * wave_amplitude;
+
+x += lengthdir_x(5, base_dir) + lengthdir_x(wave, wave_dir);
+y += lengthdir_y(5, base_dir) + lengthdir_y(wave, wave_dir);
+
+
+// ========== DASH / INVESTIDA ==========
+// Dash na direção do movimento
+if (keyboard_check_pressed(vk_shift) && can_dash) {
+    var dash_dir = point_direction(0, 0, hspd, vspd);  // direção do movimento
+    var dash_distance = 100;
+    
+    // Verificar colisão antes de mover
+    var dash_x = x + lengthdir_x(dash_distance, dash_dir);
+    var dash_y = y + lengthdir_y(dash_distance, dash_dir);
+    
+    if (!place_meeting(dash_x, dash_y, obj_wall)) {
+        x = dash_x;
+        y = dash_y;
+    }
+    can_dash = false;
+    alarm[0] = room_speed;  // cooldown
+}
+
+
+// ========== KNOCKBACK ==========
+// Empurrar inimigo para trás
+function apply_knockback(_target, _source, _force) {
+    var knock_dir = point_direction(_source.x, _source.y, _target.x, _target.y);
+    _target.hspd += lengthdir_x(_force, knock_dir);
+    _target.vspd += lengthdir_y(_force, knock_dir);
+}
+
+// Uso:
+apply_knockback(obj_enemy, self, 15);`
+                    }
+                ]
+            }
+        }
+    },
     lua: {
         name: 'Lua',
         topics: {
@@ -3308,7 +4238,8 @@ const sidebarSections = [
             { key: 'python', name: 'Python' },
             { key: 'csharp', name: 'C#' },
             { key: 'cpp', name: 'C++' },
-            { key: 'lua', name: 'Lua' }
+            { key: 'lua', name: 'Lua' },
+            { key: 'gml', name: 'GML' }
         ]
     },
     {
